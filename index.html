@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Teacher Hub One-Stop Shop</title>
+  <style>
+    :root{
+      --bg:#f7f4ee;
+      --panel:#fffaf2;
+      --panel2:#ffffff;
+      --ink:#273238;
+      --muted:#68747b;
+      --line:#e6dbcb;
+      --accent:#7f8f73;
+      --accent2:#d7936f;
+      --danger:#b94a48;
+      --warn:#9a6a00;
+      --good:#3f7d5d;
+      --shadow:0 10px 24px rgba(55,45,30,.10);
+      --radius:18px;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;background:linear-gradient(180deg,#faf7f1,#f1ece2);color:var(--ink)}
+    button,input,select,textarea{font:inherit}
+    button{border:0;border-radius:999px;padding:.72rem 1rem;background:var(--accent);color:white;font-weight:800;cursor:pointer;box-shadow:0 3px 8px rgba(0,0,0,.09)}
+    button:hover{filter:brightness(.96)}
+    button.secondary{background:#e9dfd0;color:#2f393d}
+    button.ghost{background:transparent;color:var(--accent);box-shadow:none;border:1px solid var(--line)}
+    button.danger{background:var(--danger)}
+    button.small{font-size:.86rem;padding:.42rem .72rem}
+    input,select,textarea{width:100%;border:1px solid var(--line);background:#fff;border-radius:13px;padding:.72rem;color:var(--ink);outline:none}
+    textarea{min-height:92px;resize:vertical}
+    label{font-size:.82rem;color:var(--muted);font-weight:800;display:block;margin:.25rem 0 .35rem}
+    .app{max-width:1420px;margin:0 auto;padding:22px}
+    header.hero{background:linear-gradient(135deg,#fff9ef,#eaf1e4);border:1px solid var(--line);border-radius:28px;padding:22px;box-shadow:var(--shadow);display:grid;grid-template-columns:1.4fr .8fr;gap:16px;align-items:center}
+    h1{font-size:clamp(2rem,4vw,4rem);margin:0 0 .25rem;letter-spacing:-.05em;line-height:.95}
+    h2{margin:0 0 12px;font-size:1.35rem}
+    h3{margin:0 0 9px;font-size:1.05rem}
+    p{line-height:1.45}
+    .sub{color:var(--muted);margin:.25rem 0 0;font-size:1.02rem}
+    .pillrow{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+    .pill{display:inline-flex;align-items:center;gap:6px;background:#fff;border:1px solid var(--line);border-radius:999px;padding:.4rem .7rem;color:#435057;font-weight:800;font-size:.84rem}
+    .privacy{margin-top:14px;background:#fff3cf;border:1px solid #e8cc7b;color:#4c3900;border-radius:18px;padding:13px;display:flex;gap:10px;align-items:flex-start}
+    .privacy b{display:block;margin-bottom:2px}
+    .tabs{position:sticky;top:0;z-index:10;background:rgba(247,244,238,.94);backdrop-filter:blur(8px);display:flex;gap:8px;overflow-x:auto;padding:12px 0;margin:12px 0 18px}
+    .tab{white-space:nowrap;background:#fff;color:#435057;border:1px solid var(--line);box-shadow:none}
+    .tab.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+    .screen{display:none}
+    .screen.active{display:block}
+    .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:14px}
+    .card{background:var(--panel2);border:1px solid var(--line);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow)}
+    .span-12{grid-column:span 12}.span-9{grid-column:span 9}.span-8{grid-column:span 8}.span-7{grid-column:span 7}.span-6{grid-column:span 6}.span-5{grid-column:span 5}.span-4{grid-column:span 4}.span-3{grid-column:span 3}
+    .muted{color:var(--muted)}
+    .mini{font-size:.83rem;color:var(--muted)}
+    .help{background:#f3f7ef;border:1px solid #dce7d0;border-radius:16px;padding:12px;margin-bottom:12px}
+    .row{display:grid;grid-template-columns:repeat(12,1fr);gap:10px;align-items:end}
+    .row > .c2{grid-column:span 2}.row > .c3{grid-column:span 3}.row > .c4{grid-column:span 4}.row > .c5{grid-column:span 5}.row > .c6{grid-column:span 6}.row > .c8{grid-column:span 8}.row > .c9{grid-column:span 9}.row > .c12{grid-column:span 12}
+    .list{display:flex;flex-direction:column;gap:10px}
+    .item{border:1px solid var(--line);background:#fffefa;border-radius:16px;padding:12px}
+    .item.dragging{opacity:.45}
+    .item-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+    .meta{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+    .tag{background:#edf2e8;border:1px solid #dbe6d2;color:#35443a;border-radius:999px;padding:.22rem .48rem;font-size:.76rem;font-weight:800}
+    .tag.warn{background:#fff4d7;border-color:#e8d08b;color:#614500}.tag.danger{background:#ffe8e6;border-color:#efc2bd;color:#7c2724}.tag.good{background:#e7f3ed;border-color:#c6e3d4;color:#276045}
+    .actions{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+    .days{display:grid;grid-template-columns:repeat(5,minmax(220px,1fr));gap:12px;overflow-x:auto;padding-bottom:8px}
+    .day{background:#fff;border:1px solid var(--line);border-radius:18px;min-height:260px;padding:10px}
+    .day.dragover{outline:3px dashed var(--accent);outline-offset:3px}
+    .day h3{position:sticky;top:63px;background:#fff;margin:-10px -10px 10px;padding:12px;border-radius:18px 18px 0 0;border-bottom:1px solid var(--line)}
+    .lesson{cursor:grab}
+    .time{font-weight:900;color:#48544c}
+    .empty{border:2px dashed #dfd5c6;border-radius:16px;padding:18px;text-align:center;color:var(--muted);background:#fffaf3}
+    .resource-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px}
+    .timer-wrap{text-align:center;padding:16px;border-radius:22px;background:linear-gradient(135deg,#fff,#f1f7ee);border:1px solid var(--line)}
+    .timer{font-size:clamp(4rem,12vw,10rem);font-weight:950;letter-spacing:-.08em;line-height:1;margin:6px 0;color:#313b40}
+    .progress{height:20px;background:#e8dfd1;border-radius:999px;overflow:hidden;border:1px solid var(--line)}
+    .bar{height:100%;width:0%;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .25s linear}
+    .groups{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;margin-top:12px}
+    .group-card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:12px}
+    .smartboard .timer-wrap{position:fixed;inset:0;z-index:999;background:#fbf7ef;display:flex;flex-direction:column;justify-content:center;padding:7vw}
+    .smartboard .timer{font-size:18vw}
+    .smartboard .tabs,.smartboard header,.smartboard .hide-smart{display:none!important}
+    .badge-bank{display:flex;flex-wrap:wrap;gap:8px}
+    .badge{border:1px solid var(--line);background:#fff;border-radius:999px;padding:.45rem .65rem;font-weight:900;cursor:pointer}
+    .badge.selected{background:#e7f3ed;border-color:#a8d3bb;color:#276045}
+    .supply-table{width:100%;border-collapse:separate;border-spacing:0 8px}
+    .supply-table th{text-align:left;color:var(--muted);font-size:.82rem;padding:0 8px}
+    .supply-table td{background:#fff;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:10px 8px;vertical-align:middle}
+    .supply-table td:first-child{border-left:1px solid var(--line);border-radius:14px 0 0 14px}.supply-table td:last-child{border-right:1px solid var(--line);border-radius:0 14px 14px 0}
+    .quick-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}
+    .stat{background:#fff;border:1px solid var(--line);border-radius:18px;padding:14px}.stat b{font-size:2rem;display:block}
+    .print-only{display:none}
+    .footer-note{margin:22px 0;color:var(--muted);font-size:.9rem;text-align:center}
+    @media(max-width:950px){header.hero,.grid,.row{grid-template-columns:1fr}.span-12,.span-9,.span-8,.span-7,.span-6,.span-5,.span-4,.span-3,.row>.c2,.row>.c3,.row>.c4,.row>.c5,.row>.c6,.row>.c8,.row>.c9,.row>.c12{grid-column:1}.days{grid-template-columns:1fr}.tabs{top:0}.day h3{position:static}}
+    @media print{body{background:#fff}.tabs,header,.no-print,button,.footer-note{display:none!important}.screen{display:block!important}.card{box-shadow:none;border:1px solid #ccc;break-inside:avoid}.app{max-width:100%;padding:0}.print-only{display:block}}
+  </style>
+</head>
+<body>
+  <div class="app" id="app">
+    <header class="hero">
+      <div>
+        <h1>Teacher Hub</h1>
+        <p class="sub">A one-stop classroom planning system for lessons, resources, centers, family updates, supplies, and substitute packets.</p>
+        <div class="pillrow">
+          <span class="pill">📅 Weekly Planner</span><span class="pill">🔎 Resource Search</span><span class="pill">⏱️ Centers</span><span class="pill">💬 Family Notes</span><span class="pill">🧻 Supplies</span><span class="pill">📄 Sub Packet</span>
+        </div>
+        <div class="privacy">
+          <span>⚠️</span>
+          <div><b>Privacy reminder</b>This GitHub version saves data only in this browser. Do not type real student names, private behavior details, medical details, parent phone numbers, or real emergency info into a public demo.</div>
+        </div>
+      </div>
+      <div class="card">
+        <h2>Class Setup</h2>
+        <div class="row">
+          <div class="c6"><label>Teacher name</label><input id="teacherName" placeholder="Ms. Rivera" /></div>
+          <div class="c6"><label>Class nickname</label><input id="className" placeholder="Room 12" /></div>
+          <div class="c6"><label>School day starts</label><input id="dayStart" type="time" value="08:00" /></div>
+          <div class="c6"><label>Default lesson length</label><input id="defaultMinutes" type="number" min="5" value="30" /></div>
+        </div>
+        <div class="actions">
+          <button onclick="saveSetup()">Save Setup</button>
+          <button class="secondary" onclick="exportJSON()">Download Backup</button>
+          <label class="ghost" style="display:inline-flex;align-items:center;gap:8px;border-radius:999px;padding:.72rem 1rem;cursor:pointer;color:var(--accent);font-weight:800">Upload Backup<input id="importFile" type="file" accept="application/json" style="display:none" onchange="importJSON(event)"></label>
+        </div>
+      </div>
+    </header>
+
+    <nav class="tabs no-print" id="tabs"></nav>
+
+    <section id="dashboard" class="screen active">
+      <div class="grid">
+        <div class="card span-12">
+          <h2>Today at a Glance</h2>
+          <div class="help">Use this page like the teacher's front desk. It gives you the big picture before you jump into planning, centers, supplies, or sub notes.</div>
+          <div class="quick-stats" id="stats"></div>
+        </div>
+        <div class="card span-7">
+          <h2>Next 5 Lessons</h2>
+          <div id="nextLessons" class="list"></div>
+        </div>
+        <div class="card span-5">
+          <h2>Teacher Notes</h2>
+          <label>Quick brain dump</label>
+          <textarea id="teacherNotes" placeholder="Things I need to remember tomorrow..."></textarea>
+          <div class="actions"><button onclick="saveTeacherNotes()">Save Notes</button><button class="danger" onclick="clearTeacherNotes()">Delete Notes</button></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="planner" class="screen">
+      <div class="grid">
+        <div class="card span-12">
+          <h2>Curriculum & Differentiation: Weekly Planner</h2>
+          <div class="help"><b>How to use:</b> Add a lesson. Drag it to a different day when plans change. If an assembly or fire drill happens, use the Disruption Shifter to push the rest of that day later.</div>
+          <div class="row">
+            <div class="c2"><label>Day</label><select id="lessonDay"></select></div>
+            <div class="c2"><label>Start time</label><input id="lessonTime" type="time" value="08:00"></div>
+            <div class="c2"><label>Minutes</label><input id="lessonMinutes" type="number" min="5" value="30"></div>
+            <div class="c3"><label>Subject</label><select id="lessonSubject"><option>Reading</option><option>Math</option><option>Science</option><option>Social Studies</option><option>Writing</option><option>SEL</option><option>Art</option><option>Other</option></select></div>
+            <div class="c3"><label>Lesson title</label><input id="lessonTitle" placeholder="Main idea mini lesson"></div>
+            <div class="c3"><label>Standard</label><input id="lessonStandard" placeholder="RL.3.2"></div>
+            <div class="c3"><label>Lexile / Level</label><input id="lessonLexile" placeholder="450L or Group B"></div>
+            <div class="c3"><label>Theme / Unit</label><input id="lessonUnit" placeholder="Dinosaurs"></div>
+            <div class="c3"><label>Materials</label><input id="lessonMaterials" placeholder="Book, worksheet, slides"></div>
+            <div class="c12"><label>Notes for you or a sub</label><textarea id="lessonNotes" placeholder="Teacher script, accommodations, small group notes..."></textarea></div>
+          </div>
+          <div class="actions"><button onclick="addLesson()">Save Lesson</button><button class="secondary" onclick="fillSampleWeek()">Load Sample Week</button><button class="danger" onclick="clearPlanner()">Delete All Lessons</button></div>
+        </div>
+        <div class="card span-12">
+          <h2>Disruption Shifter</h2>
+          <div class="row">
+            <div class="c3"><label>Disrupted day</label><select id="shiftDay"></select></div>
+            <div class="c2"><label>Starts at</label><input id="shiftTime" type="time" value="10:00"></div>
+            <div class="c2"><label>Lost minutes</label><input id="shiftMinutes" type="number" min="1" value="20"></div>
+            <div class="c5"><label>Reason</label><input id="shiftReason" placeholder="Fire drill, assembly, testing"></div>
+          </div>
+          <div class="actions"><button onclick="shiftSchedule()">Shift Day Schedule</button><button class="secondary" onclick="sortPlanner()">Clean Up Times</button></div>
+        </div>
+        <div class="card span-12">
+          <h2>Weekly Calendar</h2>
+          <div class="days" id="plannerDays"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="resources" class="screen">
+      <div class="grid">
+        <div class="card span-12">
+          <h2>Cross-Curricular Resource Finder</h2>
+          <div class="help"><b>How to use:</b> Save worksheets, books, links, centers, or activities. Tag each one by subject, standard, Lexile range, and theme. Then search like: dinosaur + math + 400L.</div>
+          <div class="row">
+            <div class="c4"><label>Title</label><input id="resTitle" placeholder="Dinosaur addition word problems"></div>
+            <div class="c2"><label>Subject</label><select id="resSubject"><option>Reading</option><option>Math</option><option>Science</option><option>Social Studies</option><option>Writing</option><option>SEL</option><option>Art</option><option>Other</option></select></div>
+            <div class="c2"><label>Type</label><select id="resType"><option>Worksheet</option><option>Book</option><option>Slides</option><option>Center</option><option>Video</option><option>Assessment</option><option>Other</option></select></div>
+            <div class="c2"><label>Lexile min</label><input id="resLexMin" type="number" placeholder="300"></div>
+            <div class="c2"><label>Lexile max</label><input id="resLexMax" type="number" placeholder="600"></div>
+            <div class="c3"><label>Standard</label><input id="resStandard" placeholder="3.OA.A.3"></div>
+            <div class="c3"><label>Theme / Unit</label><input id="resUnit" placeholder="Dinosaurs"></div>
+            <div class="c3"><label>Link or location</label><input id="resLink" placeholder="Binder, Google Drive, shelf, URL"></div>
+            <div class="c3"><label>Differentiation notes</label><input id="resNotes" placeholder="For below-level group, visuals included"></div>
+          </div>
+          <div class="actions"><button onclick="addResource()">Save Resource</button><button class="secondary" onclick="loadSampleResources()">Load Sample Resources</button><button class="danger" onclick="clearResources()">Delete All Resources</button></div>
+        </div>
+        <div class="card span-12">
+          <h2>Search Materials</h2>
+          <div class="row">
+            <div class="c3"><label>Keyword</label><input id="searchKeyword" oninput="renderResources()" placeholder="dinosaur, fractions, empathy"></div>
+            <div class="c2"><label>Subject</label><select id="searchSubject" onchange="renderResources()"><option value="">Any</option><option>Reading</option><option>Math</option><option>Science</option><option>Social Studies</option><option>Writing</option><option>SEL</option><option>Art</option><option>Other</option></select></div>
+            <div class="c2"><label>Student Lexile</label><input id="searchLexile" type="number" oninput="renderResources()" placeholder="450"></div>
+            <div class="c2"><label>Standard</label><input id="searchStandard" oninput="renderResources()" placeholder="RL.3.2"></div>
+            <div class="c3"><label>Theme / Unit</label><input id="searchUnit" oninput="renderResources()" placeholder="Dinosaurs"></div>
+          </div>
+          <div id="resourceResults" class="resource-grid" style="margin-top:12px"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="centers" class="screen">
+      <div class="grid">
+        <div class="card span-5 hide-smart">
+          <h2>Center & Rotation Setup</h2>
+          <div class="help"><b>How to use:</b> Paste student initials or fake names, one per line. Add centers. Generate groups. Start the timer on the smartboard.</div>
+          <label>Students / initials, one per line</label><textarea id="studentNames" placeholder="Ava\nBen\nCarlos\nDeja"></textarea>
+          <label>Centers, one per line</label><textarea id="centerNames" placeholder="Teacher Table\nWord Work\nMath Games\nIndependent Reading"></textarea>
+          <div class="row"><div class="c6"><label>Minutes per rotation</label><input id="rotationMinutes" type="number" min="1" value="12"></div><div class="c6"><label>Students per group</label><input id="groupSize" type="number" min="1" value="4"></div></div>
+          <div class="actions"><button onclick="generateGroups()">Generate Groups</button><button onclick="startTimer()">Start Timer</button><button class="secondary" onclick="pauseTimer()">Pause</button><button class="secondary" onclick="nextRotation()">Next Rotation</button><button class="ghost" onclick="toggleSmartboard()">Smartboard Mode</button><button class="danger" onclick="resetTimer()">Reset</button></div>
+        </div>
+        <div class="card span-7">
+          <h2>Visual Timer</h2>
+          <div class="timer-wrap" id="timerWrap">
+            <div class="mini" id="rotationLabel">Rotation 1</div>
+            <div class="timer" id="timerDisplay">12:00</div>
+            <div class="progress"><div class="bar" id="timerBar"></div></div>
+            <p id="centerPrompt" class="sub">Students check the board, clean up, and rotate calmly.</p>
+            <div class="actions" style="justify-content:center"><button onclick="pauseTimer()">Pause</button><button onclick="nextRotation()">Next</button><button class="secondary" onclick="toggleSmartboard()">Exit / Enter Smartboard</button></div>
+          </div>
+        </div>
+        <div class="card span-12 hide-smart">
+          <h2>Groups & Rotations</h2>
+          <div id="groups" class="groups"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="families" class="screen">
+      <div class="grid">
+        <div class="card span-12">
+          <h2>Family Communication Hub</h2>
+          <div class="help"><b>Safe prototype note:</b> This version is a message-planning area only. For real photo sharing, instant messaging, and translation, use a school-approved tool with logins, permissions, retention rules, and admin approval.</div>
+          <div class="row">
+            <div class="c3"><label>Student nickname / initials</label><input id="famStudent" placeholder="A.M."></div>
+            <div class="c3"><label>Family contact label</label><input id="famContact" placeholder="Mom, Dad, Guardian"></div>
+            <div class="c3"><label>Home language</label><select id="famLanguage"><option>English</option><option>Spanish</option><option>Hmong</option><option>Somali</option><option>Vietnamese</option><option>Arabic</option><option>Other</option></select></div>
+            <div class="c3"><label>Permission status</label><select id="famPermission"><option>Media permission unknown</option><option>No media sharing</option><option>Classroom-only media okay</option><option>School-approved platform only</option></select></div>
+          </div>
+          <label>Family notes, no private details</label><textarea id="famNotes" placeholder="Example: Prefers weekly Friday update. Needs translated message. Do not add private student records here."></textarea>
+          <div class="actions"><button onclick="addFamily()">Save Family Card</button><button class="danger" onclick="clearFamilies()">Delete All Family Cards</button></div>
+        </div>
+        <div class="card span-5">
+          <h2>Behavior Badges & Message Helper</h2>
+          <p class="mini">Click badges to build a simple positive update.</p>
+          <div class="badge-bank" id="badgeBank"></div>
+          <label>Message template</label><select id="messageTemplate" onchange="buildFamilyMessage()"><option value="positive">Positive update</option><option value="reminder">Gentle reminder</option><option value="growth">Growth update</option><option value="supply">Supply request</option></select>
+          <label>Message draft</label><textarea id="familyMessage"></textarea>
+          <div class="actions"><button onclick="buildFamilyMessage()">Create Draft</button><button class="secondary" onclick="copyFamilyMessage()">Copy Message</button><button class="ghost" onclick="openTranslateHelper()">Open Translation Helper</button></div>
+        </div>
+        <div class="card span-7">
+          <h2>Family Cards</h2>
+          <div id="familyList" class="list"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="supplies" class="screen">
+      <div class="grid">
+        <div class="card span-12">
+          <h2>Supply & Wishlist Tracker</h2>
+          <div class="help"><b>How to use:</b> Add classroom needs. Mark items claimed when a parent, PTA member, or helper offers to bring them.</div>
+          <div class="row">
+            <div class="c4"><label>Item</label><input id="supplyItem" placeholder="Tissues"></div>
+            <div class="c2"><label>Needed qty</label><input id="supplyQty" type="number" min="1" value="1"></div>
+            <div class="c2"><label>Priority</label><select id="supplyPriority"><option>High</option><option>Medium</option><option>Low</option></select></div>
+            <div class="c4"><label>Notes</label><input id="supplyNotes" placeholder="Unscented, any brand"></div>
+          </div>
+          <div class="actions"><button onclick="addSupply()">Save Supply Need</button><button class="secondary" onclick="loadSampleSupplies()">Load Sample Needs</button><button class="danger" onclick="clearSupplies()">Delete All Supplies</button></div>
+        </div>
+        <div class="card span-12">
+          <h2>Live Checklist</h2>
+          <div id="supplyList"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="sub" class="screen">
+      <div class="grid">
+        <div class="card span-12">
+          <h2>Substitute Teacher Matrix</h2>
+          <div class="help"><b>How to use:</b> Fill this once. When you are absent, click Export Sub Packet. Your browser opens a clean page. Choose Print → Save as PDF.</div>
+          <div class="row">
+            <div class="c4"><label>School phone / office</label><input id="subOffice" placeholder="Main office: 555-0000"></div>
+            <div class="c4"><label>Buddy teacher</label><input id="subBuddy" placeholder="Ms. Lee, Room 10"></div>
+            <div class="c4"><label>Classroom location</label><input id="subRoom" placeholder="Room 12"></div>
+            <div class="c6"><label>Daily routines</label><textarea id="subRoutines" placeholder="Morning work, bathroom rules, lunch line, dismissal..."></textarea></div>
+            <div class="c6"><label>Class roster / groups</label><textarea id="subRoster" placeholder="Use initials or school-approved roster only."></textarea></div>
+            <div class="c6"><label>Emergency procedures</label><textarea id="subEmergency" placeholder="Fire drill route, lockdown basics, nurse location..."></textarea></div>
+            <div class="c6"><label>Important classroom notes</label><textarea id="subNotes" placeholder="Keep private medical/behavior info in the school-approved sub folder, not this public demo."></textarea></div>
+          </div>
+          <div class="actions"><button onclick="saveSubInfo()">Save Sub Info</button><button onclick="exportSubPacket()">Export Sub Packet</button><button class="secondary" onclick="copySubSummary()">Copy Summary</button><button class="danger" onclick="clearSubInfo()">Delete Sub Info</button></div>
+        </div>
+        <div class="card span-12">
+          <h2>Sub Packet Preview</h2>
+          <div id="subPreview" class="list"></div>
+        </div>
+      </div>
+    </section>
+
+    <p class="footer-note">Teacher Hub prototype. Local browser storage only. Built for GitHub Pages testing.</p>
+  </div>
+
+  <script>
+    const DAYS = ["Monday","Tuesday","Wednesday","Thursday","Friday"];
+    const STORAGE_KEY = "teacherHub.v1";
+    const BADGES = ["Great Focus","Kind Helper","Brave Reader","Math Thinker","Good Listener","Problem Solver","Creative Idea","Teamwork","Kept Trying","Leadership"];
+    const tabs = [
+      ["dashboard","🏠 Dashboard"],["planner","📅 Planner"],["resources","🔎 Resources"],["centers","⏱️ Centers"],["families","💬 Families"],["supplies","🧻 Supplies"],["sub","📄 Sub Packet"]
+    ];
+    let state = loadState();
+    let draggedLessonId = null;
+    let timer = { total: 12*60, left: 12*60, running:false, interval:null, rotation:1 };
+    let selectedBadges = new Set();
+
+    function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+    function defaultState(){
+      return { setup:{teacherName:"",className:"",dayStart:"08:00",defaultMinutes:30}, planner:{Monday:[],Tuesday:[],Wednesday:[],Thursday:[],Friday:[]}, resources:[], centers:{students:"",centers:"",groups:[]}, families:[], supplies:[], sub:{}, notes:"" };
+    }
+    function loadState(){
+      try{ return {...defaultState(), ...JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}")} }catch(e){ return defaultState(); }
+    }
+    function save(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); renderAll(); }
+    function escapeHTML(str=""){ return String(str).replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c])); }
+    function minutesFromTime(t){ const [h,m] = (t||"00:00").split(":").map(Number); return h*60+m; }
+    function timeFromMinutes(min){ min = ((min % 1440)+1440)%1440; return String(Math.floor(min/60)).padStart(2,"0") + ":" + String(min%60).padStart(2,"0"); }
+    function prettyTime(t){ if(!t) return ""; const [h,m]=t.split(":").map(Number); const d=new Date(2000,0,1,h,m); return d.toLocaleTimeString([], {hour:"numeric", minute:"2-digit"}); }
+    function byTime(a,b){ return minutesFromTime(a.time)-minutesFromTime(b.time); }
+    function $(id){ return document.getElementById(id); }
+
+    function init(){
+      $("tabs").innerHTML = tabs.map(([id,label]) => `<button class="tab ${id==='dashboard'?'active':''}" onclick="showTab('${id}', this)">${label}</button>`).join("");
+      ["lessonDay","shiftDay"].forEach(id => $(id).innerHTML = DAYS.map(d=>`<option>${d}</option>`).join(""));
+      $("badgeBank").innerHTML = BADGES.map(b=>`<span class="badge" onclick="toggleBadge('${b.replace(/'/g,"\\'")}', this)">${b}</span>`).join("");
+      hydrateFields();
+      renderAll();
+      updateTimerDisplay();
+    }
+    function showTab(id, btn){
+      document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+      document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+      $(id).classList.add("active");
+      if(btn) btn.classList.add("active");
+      document.body.classList.remove("smartboard");
+      renderAll();
+    }
+    function hydrateFields(){
+      $("teacherName").value = state.setup.teacherName || "";
+      $("className").value = state.setup.className || "";
+      $("dayStart").value = state.setup.dayStart || "08:00";
+      $("defaultMinutes").value = state.setup.defaultMinutes || 30;
+      $("lessonMinutes").value = state.setup.defaultMinutes || 30;
+      $("teacherNotes").value = state.notes || "";
+      $("studentNames").value = state.centers.students || "";
+      $("centerNames").value = state.centers.centers || "";
+      Object.entries(state.sub || {}).forEach(([k,v])=>{ if($(k)) $(k).value = v || ""; });
+    }
+    function saveSetup(){
+      state.setup = { teacherName:$("teacherName").value.trim(), className:$("className").value.trim(), dayStart:$("dayStart").value, defaultMinutes:Number($("defaultMinutes").value||30) };
+      $("lessonMinutes").value = state.setup.defaultMinutes;
+      save(); toast("Setup saved.");
+    }
+    function saveTeacherNotes(){ state.notes = $("teacherNotes").value; save(); toast("Notes saved."); }
+    function clearTeacherNotes(){ if(confirm("Delete teacher notes?")){ state.notes=""; $("teacherNotes").value=""; save(); } }
+
+    function renderAll(){ renderStats(); renderPlanner(); renderResources(); renderGroups(); renderFamilies(); renderSupplies(); renderSubPreview(); }
+    function renderStats(){
+      const lessons = DAYS.flatMap(d=>state.planner[d].map(x=>({...x,day:d}))).length;
+      const resources = state.resources.length;
+      const groups = state.centers.groups.length;
+      const suppliesOpen = state.supplies.filter(s=>!s.claimed).length;
+      $("stats").innerHTML = [
+        [lessons,"lessons planned"],[resources,"saved resources"],[groups,"center groups"],[state.families.length,"family cards"],[suppliesOpen,"open supply needs"]
+      ].map(([n,l])=>`<div class="stat"><b>${n}</b><span>${l}</span></div>`).join("");
+      const upcoming = DAYS.flatMap(d=>state.planner[d].map(x=>({...x,day:d}))).sort((a,b)=> DAYS.indexOf(a.day)-DAYS.indexOf(b.day) || byTime(a,b)).slice(0,5);
+      $("nextLessons").innerHTML = upcoming.length ? upcoming.map(l=>lessonHTML(l,l.day,false)).join("") : `<div class="empty">No lessons yet. Go to Planner and save your first lesson.</div>`;
+    }
+
+    function addLesson(){
+      const title = $("lessonTitle").value.trim();
+      if(!title){ alert("Add a lesson title first."); return; }
+      const day = $("lessonDay").value;
+      const lesson = { id:uid(), time:$("lessonTime").value || state.setup.dayStart || "08:00", minutes:Number($("lessonMinutes").value||30), subject:$("lessonSubject").value, title, standard:$("lessonStandard").value.trim(), lexile:$("lessonLexile").value.trim(), unit:$("lessonUnit").value.trim(), materials:$("lessonMaterials").value.trim(), notes:$("lessonNotes").value.trim(), sub:true };
+      state.planner[day].push(lesson); state.planner[day].sort(byTime);
+      ["lessonTitle","lessonStandard","lessonLexile","lessonUnit","lessonMaterials","lessonNotes"].forEach(id=>$(id).value="");
+      save(); toast("Lesson saved.");
+    }
+    function lessonHTML(l, day, controls=true){
+      const meta = [l.subject,l.standard,l.lexile,l.unit].filter(Boolean).map(x=>`<span class="tag">${escapeHTML(x)}</span>`).join("");
+      return `<div class="item lesson" draggable="${controls}" ondragstart="dragLesson(event,'${l.id}')" ondragend="dragEnd(event)">
+        <div class="item-head"><div><div class="time">${prettyTime(l.time)} · ${escapeHTML(l.minutes)} min</div><h3>${escapeHTML(l.title)}</h3></div><span class="tag ${l.subject==='Disruption'?'warn':''}">${escapeHTML(day)}</span></div>
+        <div class="meta">${meta}</div>
+        ${l.materials?`<p class="mini"><b>Materials:</b> ${escapeHTML(l.materials)}</p>`:""}
+        ${l.notes?`<p class="mini"><b>Notes:</b> ${escapeHTML(l.notes)}</p>`:""}
+        ${controls?`<div class="actions"><button class="small secondary" onclick="moveLesson('${day}','${l.id}',-1)">Up</button><button class="small secondary" onclick="moveLesson('${day}','${l.id}',1)">Down</button><button class="small ghost" onclick="toggleSub('${day}','${l.id}')">${l.sub?'In Sub Packet':'Add to Sub'}</button><button class="small danger" onclick="deleteLesson('${day}','${l.id}')">Delete</button></div>`:""}
+      </div>`;
+    }
+    function renderPlanner(){
+      $("plannerDays").innerHTML = DAYS.map(day => `<div class="day" ondragover="allowDrop(event)" ondragleave="dragLeave(event)" ondrop="dropLesson(event,'${day}')"><h3>${day}</h3>${state.planner[day].length ? state.planner[day].sort(byTime).map(l=>lessonHTML(l,day)).join("") : `<div class="empty">Drop lessons here or add one above.</div>`}</div>`).join("");
+    }
+    function dragLesson(e,id){ draggedLessonId=id; e.currentTarget.classList.add("dragging"); }
+    function dragEnd(e){ e.currentTarget.classList.remove("dragging"); document.querySelectorAll(".day").forEach(d=>d.classList.remove("dragover")); }
+    function allowDrop(e){ e.preventDefault(); e.currentTarget.classList.add("dragover"); }
+    function dragLeave(e){ e.currentTarget.classList.remove("dragover"); }
+    function dropLesson(e,targetDay){
+      e.preventDefault(); e.currentTarget.classList.remove("dragover");
+      if(!draggedLessonId) return;
+      let found=null, oldDay=null;
+      DAYS.forEach(d=>{ const i=state.planner[d].findIndex(l=>l.id===draggedLessonId); if(i>-1){ found=state.planner[d].splice(i,1)[0]; oldDay=d; }});
+      if(found){ state.planner[targetDay].push(found); state.planner[targetDay].sort(byTime); save(); toast(`Moved from ${oldDay} to ${targetDay}.`); }
+      draggedLessonId=null;
+    }
+    function deleteLesson(day,id){ if(confirm("Delete this lesson?")){ state.planner[day] = state.planner[day].filter(l=>l.id!==id); save(); } }
+    function moveLesson(day,id,dir){
+      const arr=state.planner[day].sort(byTime); const i=arr.findIndex(l=>l.id===id); const j=i+dir;
+      if(i<0||j<0||j>=arr.length) return;
+      const temp=arr[i].time; arr[i].time=arr[j].time; arr[j].time=temp; arr.sort(byTime); save();
+    }
+    function toggleSub(day,id){ const l=state.planner[day].find(x=>x.id===id); if(l){ l.sub=!l.sub; save(); } }
+    function shiftSchedule(){
+      const day=$("shiftDay").value, start=minutesFromTime($("shiftTime").value), delta=Number($("shiftMinutes").value||0), reason=$("shiftReason").value.trim()||"Schedule disruption";
+      if(delta<=0){ alert("Add minutes lost."); return; }
+      state.planner[day].forEach(l=>{ if(minutesFromTime(l.time)>=start) l.time=timeFromMinutes(minutesFromTime(l.time)+delta); });
+      state.planner[day].push({id:uid(), time:$("shiftTime").value, minutes:delta, subject:"Disruption", title:reason, standard:"", lexile:"", unit:"", materials:"", notes:`The rest of the day was shifted by ${delta} minutes.`, sub:true});
+      state.planner[day].sort(byTime); save(); toast("Schedule shifted.");
+    }
+    function sortPlanner(){ DAYS.forEach(d=>state.planner[d].sort(byTime)); save(); }
+    function clearPlanner(){ if(confirm("Delete all planned lessons?")){ state.planner=defaultState().planner; save(); } }
+    function fillSampleWeek(){
+      state.planner = defaultState().planner;
+      state.planner.Monday.push({id:uid(),time:"08:15",minutes:25,subject:"Reading",title:"Main Idea with Animal Text",standard:"RI.3.2",lexile:"420L-600L",unit:"Animals",materials:"Short article, highlighters",notes:"Below-level group gets paragraph chunks.",sub:true});
+      state.planner.Monday.push({id:uid(),time:"09:00",minutes:35,subject:"Math",title:"Dinosaur Addition Word Problems",standard:"3.OA.A.3",lexile:"350L",unit:"Dinosaurs",materials:"Worksheet, counters",notes:"Pair students for reading support.",sub:true});
+      state.planner.Tuesday.push({id:uid(),time:"10:00",minutes:30,subject:"Science",title:"Fossil Observation",standard:"3-LS4-1",lexile:"Visual",unit:"Dinosaurs",materials:"Pictures, magnifiers",notes:"Draw then label observations.",sub:true});
+      state.planner.Wednesday.push({id:uid(),time:"12:45",minutes:25,subject:"SEL",title:"Problem Solving Role Play",standard:"CASEL",lexile:"",unit:"Friendship",materials:"Scenario cards",notes:"Model one first.",sub:true});
+      save(); toast("Sample week loaded.");
+    }
+
+    function addResource(){
+      const title=$("resTitle").value.trim(); if(!title){ alert("Add a resource title first."); return; }
+      state.resources.push({id:uid(), title, subject:$("resSubject").value, type:$("resType").value, lexMin:Number($("resLexMin").value||0), lexMax:Number($("resLexMax").value||9999), standard:$("resStandard").value.trim(), unit:$("resUnit").value.trim(), link:$("resLink").value.trim(), notes:$("resNotes").value.trim()});
+      ["resTitle","resLexMin","resLexMax","resStandard","resUnit","resLink","resNotes"].forEach(id=>$(id).value=""); save(); toast("Resource saved.");
+    }
+    function loadSampleResources(){
+      state.resources.push(
+        {id:uid(),title:"Dinosaur Addition Word Problems",subject:"Math",type:"Worksheet",lexMin:300,lexMax:550,standard:"3.OA.A.3",unit:"Dinosaurs",link:"Math binder / Unit 2",notes:"Good for students who like science themes."},
+        {id:uid(),title:"Fossil Fact Cards",subject:"Reading",type:"Center",lexMin:420,lexMax:700,standard:"RI.3.1",unit:"Dinosaurs",link:"Science tub",notes:"Use with partner reading."},
+        {id:uid(),title:"Kindness Scenario Cards",subject:"SEL",type:"Center",lexMin:0,lexMax:9999,standard:"Speaking & Listening",unit:"Friendship",link:"SEL folder",notes:"Students act out safe choices."},
+        {id:uid(),title:"Weather Graphing Slides",subject:"Math",type:"Slides",lexMin:250,lexMax:600,standard:"3.MD.B.3",unit:"Weather",link:"Google Drive",notes:"Includes picture support."}
+      ); save(); toast("Sample resources added.");
+    }
+    function renderResources(){
+      const kw=($("searchKeyword")?.value||"").toLowerCase(), subj=$("searchSubject")?.value||"", lex=Number($("searchLexile")?.value||0), std=($("searchStandard")?.value||"").toLowerCase(), unit=($("searchUnit")?.value||"").toLowerCase();
+      let results=state.resources.filter(r=>{
+        const hay=[r.title,r.subject,r.type,r.standard,r.unit,r.link,r.notes].join(" ").toLowerCase();
+        return (!kw||hay.includes(kw)) && (!subj||r.subject===subj) && (!std||String(r.standard).toLowerCase().includes(std)) && (!unit||String(r.unit).toLowerCase().includes(unit)) && (!lex||(lex>=r.lexMin && lex<=r.lexMax));
+      });
+      $("resourceResults").innerHTML = results.length ? results.map(r=>`<div class="item"><div class="item-head"><h3>${escapeHTML(r.title)}</h3><span class="tag">${escapeHTML(r.type)}</span></div><div class="meta"><span class="tag">${escapeHTML(r.subject)}</span><span class="tag">${escapeHTML(r.standard||"No standard")}</span><span class="tag">${r.lexMin||0}L-${r.lexMax===9999?'Any':r.lexMax+'L'}</span><span class="tag">${escapeHTML(r.unit||"No theme")}</span></div>${r.link?`<p class="mini"><b>Where:</b> ${escapeHTML(r.link)}</p>`:""}${r.notes?`<p class="mini"><b>Differentiation:</b> ${escapeHTML(r.notes)}</p>`:""}<div class="actions"><button class="small secondary" onclick="makeLessonFromResource('${r.id}')">Turn into Lesson</button><button class="small danger" onclick="deleteResource('${r.id}')">Delete</button></div></div>`).join("") : `<div class="empty">No matching resources yet.</div>`;
+    }
+    function makeLessonFromResource(id){
+      const r=state.resources.find(x=>x.id===id); if(!r) return;
+      $("lessonTitle").value=r.title; $("lessonSubject").value=r.subject; $("lessonStandard").value=r.standard; $("lessonLexile").value=`${r.lexMin || 0}L-${r.lexMax===9999?'Any':r.lexMax+'L'}`; $("lessonUnit").value=r.unit; $("lessonMaterials").value=r.link; $("lessonNotes").value=r.notes;
+      showTab('planner', [...document.querySelectorAll('.tab')].find(b=>b.textContent.includes('Planner')));
+      toast("Resource copied into the lesson form. Review it, then click Save Lesson.");
+    }
+    function deleteResource(id){ if(confirm("Delete this resource?")){ state.resources=state.resources.filter(r=>r.id!==id); save(); } }
+    function clearResources(){ if(confirm("Delete all resources?")){ state.resources=[]; save(); } }
+
+    function generateGroups(){
+      const students=$("studentNames").value.split(/\n|,/).map(s=>s.trim()).filter(Boolean);
+      const centers=$("centerNames").value.split(/\n|,/).map(s=>s.trim()).filter(Boolean);
+      const size=Math.max(1,Number($("groupSize").value||4));
+      if(!students.length || !centers.length){ alert("Add students and centers first."); return; }
+      const shuffled=[...students].sort(()=>Math.random()-0.5);
+      const groups=[]; for(let i=0;i<shuffled.length;i+=size){ groups.push({name:`Group ${groups.length+1}`, students:shuffled.slice(i,i+size), center:centers[groups.length % centers.length]}); }
+      state.centers={students:$("studentNames").value, centers:$("centerNames").value, groups};
+      timer.rotation=1; save(); updateCenterPrompt(); toast("Groups generated.");
+    }
+    function renderGroups(){
+      $("groups").innerHTML = state.centers.groups.length ? state.centers.groups.map((g,i)=>`<div class="group-card"><h3>${escapeHTML(g.name)}</h3><p><b>Starts at:</b> ${escapeHTML(g.center)}</p><p>${g.students.map(escapeHTML).join(", ")}</p><span class="tag ${i+1===timer.rotation?'good':''}">${i+1===timer.rotation?'Current focus':'Ready'}</span></div>`).join("") : `<div class="empty">No groups yet. Generate groups from the setup box.</div>`;
+    }
+    function startTimer(){
+      const minutes=Math.max(1,Number($("rotationMinutes").value||12));
+      if(!timer.running && timer.left<=0){ timer.left=minutes*60; }
+      timer.total=minutes*60; if(timer.left>timer.total || timer.left===12*60) timer.left=timer.total;
+      timer.running=true; clearInterval(timer.interval); timer.interval=setInterval(()=>{ if(timer.running){ timer.left--; if(timer.left<=0){ chime(); nextRotation(); } updateTimerDisplay(); }},1000); updateTimerDisplay();
+    }
+    function pauseTimer(){ timer.running=false; clearInterval(timer.interval); updateTimerDisplay(); }
+    function resetTimer(){ pauseTimer(); timer.total=Math.max(1,Number($("rotationMinutes").value||12))*60; timer.left=timer.total; timer.rotation=1; updateTimerDisplay(); renderGroups(); }
+    function nextRotation(){
+      const centers = ($("centerNames").value || state.centers.centers || "").split(/\n|,/).map(s=>s.trim()).filter(Boolean);
+      timer.rotation = centers.length ? (timer.rotation % centers.length)+1 : timer.rotation+1;
+      timer.total=Math.max(1,Number($("rotationMinutes").value||12))*60; timer.left=timer.total; updateTimerDisplay(); updateCenterPrompt(); renderGroups();
+    }
+    function updateTimerDisplay(){
+      const m=Math.floor(timer.left/60), s=timer.left%60;
+      $("timerDisplay").textContent=`${m}:${String(s).padStart(2,'0')}`;
+      const pct=timer.total ? Math.max(0, Math.min(100, ((timer.total-timer.left)/timer.total)*100)) : 0;
+      $("timerBar").style.width=pct+"%";
+      $("rotationLabel").textContent=`Rotation ${timer.rotation}`;
+    }
+    function updateCenterPrompt(){
+      const centers = ($("centerNames").value || state.centers.centers || "").split(/\n|,/).map(s=>s.trim()).filter(Boolean);
+      const current = centers[(timer.rotation-1) % Math.max(1,centers.length)] || "your center";
+      $("centerPrompt").textContent = `Current center focus: ${current}. Work quietly, use materials kindly, and rotate when the timer ends.`;
+    }
+    function toggleSmartboard(){ document.body.classList.toggle("smartboard"); }
+    function chime(){ try{ const ctx=new (window.AudioContext||window.webkitAudioContext)(); const osc=ctx.createOscillator(); const gain=ctx.createGain(); osc.connect(gain); gain.connect(ctx.destination); osc.frequency.value=880; gain.gain.value=.08; osc.start(); setTimeout(()=>{osc.stop();ctx.close();},400); }catch(e){} }
+
+    function toggleBadge(b, el){ if(selectedBadges.has(b)){ selectedBadges.delete(b); el.classList.remove("selected"); } else { selectedBadges.add(b); el.classList.add("selected"); } buildFamilyMessage(); }
+    function addFamily(){
+      const student=$("famStudent").value.trim(); if(!student){ alert("Add a student nickname or initials first."); return; }
+      state.families.push({id:uid(), student, contact:$("famContact").value.trim(), language:$("famLanguage").value, permission:$("famPermission").value, notes:$("famNotes").value.trim()});
+      ["famStudent","famContact","famNotes"].forEach(id=>$(id).value=""); save(); toast("Family card saved.");
+    }
+    function renderFamilies(){
+      $("familyList").innerHTML = state.families.length ? state.families.map(f=>`<div class="item"><div class="item-head"><h3>${escapeHTML(f.student)}</h3><span class="tag">${escapeHTML(f.language)}</span></div><p class="mini"><b>Contact:</b> ${escapeHTML(f.contact||"Not added")}</p><p class="mini"><b>Media:</b> ${escapeHTML(f.permission)}</p>${f.notes?`<p class="mini"><b>Notes:</b> ${escapeHTML(f.notes)}</p>`:""}<div class="actions"><button class="small secondary" onclick="useFamily('${f.id}')">Use for Message</button><button class="small danger" onclick="deleteFamily('${f.id}')">Delete</button></div></div>`).join("") : `<div class="empty">No family cards yet.</div>`;
+    }
+    function useFamily(id){ const f=state.families.find(x=>x.id===id); if(f){ $("famStudent").value=f.student; $("famLanguage").value=f.language; buildFamilyMessage(); } }
+    function deleteFamily(id){ if(confirm("Delete this family card?")){ state.families=state.families.filter(f=>f.id!==id); save(); } }
+    function clearFamilies(){ if(confirm("Delete all family cards?")){ state.families=[]; save(); } }
+    function buildFamilyMessage(){
+      const student=$("famStudent").value.trim() || "your student";
+      const badges=[...selectedBadges]; const template=$("messageTemplate").value;
+      let msg="";
+      if(template==="positive") msg=`Hello! I wanted to share a positive update. ${student} showed ${badges.length?badges.join(", ").toLowerCase():"great effort"} today. I am proud of their work.`;
+      if(template==="reminder") msg=`Hello! Quick reminder for ${student}: please check the classroom folder and bring any needed materials tomorrow. Thank you for your help.`;
+      if(template==="growth") msg=`Hello! I noticed growth from ${student} today. They kept trying and made progress. We will keep practicing together.`;
+      if(template==="supply") msg=`Hello! Our classroom could use help with supplies. Please check the class wishlist if you are able to help. Thank you!`;
+      $("familyMessage").value=msg;
+    }
+    function copyFamilyMessage(){ navigator.clipboard?.writeText($("familyMessage").value); toast("Message copied."); }
+    function openTranslateHelper(){
+      const msg=encodeURIComponent($("familyMessage").value || "Hello!");
+      window.open(`https://translate.google.com/?sl=auto&tl=auto&text=${msg}&op=translate`, "_blank", "noopener");
+    }
+
+    function addSupply(){
+      const item=$("supplyItem").value.trim(); if(!item){ alert("Add a supply item first."); return; }
+      state.supplies.push({id:uid(), item, qty:Number($("supplyQty").value||1), priority:$("supplyPriority").value, notes:$("supplyNotes").value.trim(), claimed:false, claimedBy:""});
+      ["supplyItem","supplyNotes"].forEach(id=>$(id).value=""); $("supplyQty").value=1; save(); toast("Supply need saved.");
+    }
+    function renderSupplies(){
+      if(!state.supplies.length){ $("supplyList").innerHTML=`<div class="empty">No supplies yet.</div>`; return; }
+      $("supplyList").innerHTML = `<table class="supply-table"><thead><tr><th>Need</th><th>Qty</th><th>Priority</th><th>Status</th><th>Claimed by</th><th></th></tr></thead><tbody>${state.supplies.map(s=>`<tr><td><b>${escapeHTML(s.item)}</b><br><span class="mini">${escapeHTML(s.notes||"")}</span></td><td>${s.qty}</td><td><span class="tag ${s.priority==='High'?'danger':s.priority==='Medium'?'warn':'good'}">${s.priority}</span></td><td>${s.claimed?'<span class="tag good">Claimed</span>':'<span class="tag warn">Needed</span>'}</td><td><input value="${escapeHTML(s.claimedBy||"")}" placeholder="Name" onchange="updateClaimedBy('${s.id}', this.value)"></td><td><button class="small secondary" onclick="toggleSupply('${s.id}')">${s.claimed?'Unclaim':'Claim'}</button> <button class="small danger" onclick="deleteSupply('${s.id}')">Delete</button></td></tr>`).join("")}</tbody></table>`;
+    }
+    function toggleSupply(id){ const s=state.supplies.find(x=>x.id===id); if(s){ s.claimed=!s.claimed; save(); } }
+    function updateClaimedBy(id,val){ const s=state.supplies.find(x=>x.id===id); if(s){ s.claimedBy=val; localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } }
+    function deleteSupply(id){ if(confirm("Delete this supply item?")){ state.supplies=state.supplies.filter(s=>s.id!==id); save(); } }
+    function clearSupplies(){ if(confirm("Delete all supply items?")){ state.supplies=[]; save(); } }
+    function loadSampleSupplies(){ state.supplies.push({id:uid(),item:"Tissues",qty:4,priority:"High",notes:"Any brand",claimed:false,claimedBy:""},{id:uid(),item:"Glue sticks",qty:20,priority:"Medium",notes:"Washable",claimed:false,claimedBy:""},{id:uid(),item:"Disinfectant wipes",qty:3,priority:"High",notes:"School-approved only",claimed:false,claimedBy:""}); save(); }
+
+    function saveSubInfo(){
+      state.sub = { subOffice:$("subOffice").value, subBuddy:$("subBuddy").value, subRoom:$("subRoom").value, subRoutines:$("subRoutines").value, subRoster:$("subRoster").value, subEmergency:$("subEmergency").value, subNotes:$("subNotes").value };
+      save(); toast("Sub info saved.");
+    }
+    function clearSubInfo(){ if(confirm("Delete sub info?")){ state.sub={}; ["subOffice","subBuddy","subRoom","subRoutines","subRoster","subEmergency","subNotes"].forEach(id=>$(id).value=""); save(); } }
+    function subLessons(){ return DAYS.flatMap(d=>state.planner[d].filter(l=>l.sub).map(l=>({...l,day:d}))).sort((a,b)=>DAYS.indexOf(a.day)-DAYS.indexOf(b.day)||byTime(a,b)); }
+    function renderSubPreview(){
+      const s=state.sub||{}; const lessons=subLessons();
+      $("subPreview").innerHTML = `<div class="item"><h3>${escapeHTML(state.setup.className||"Classroom")} Sub Packet</h3><p class="mini"><b>Teacher:</b> ${escapeHTML(state.setup.teacherName||"")} · <b>Room:</b> ${escapeHTML(s.subRoom||"")}</p><p class="mini"><b>Office:</b> ${escapeHTML(s.subOffice||"")} · <b>Buddy teacher:</b> ${escapeHTML(s.subBuddy||"")}</p></div>` +
+      ["subRoutines","subRoster","subEmergency","subNotes"].map(id=> s[id] ? `<div class="item"><h3>${({subRoutines:"Daily Routines",subRoster:"Roster / Groups",subEmergency:"Emergency Procedures",subNotes:"Important Notes"})[id]}</h3><p>${escapeHTML(s[id]).replace(/\n/g,"<br>")}</p></div>` : "").join("") +
+      `<div class="item"><h3>Lessons Included</h3>${lessons.length?lessons.map(l=>lessonHTML(l,l.day,false)).join(""):`<p class="muted">No lessons marked for sub packet yet.</p>`}</div>`;
+    }
+    function exportSubPacket(){
+      saveSubInfo();
+      const html = `<!DOCTYPE html><html><head><title>Sub Packet</title><style>body{font-family:Arial,sans-serif;color:#222;line-height:1.35;padding:32px}h1{font-size:30px}h2{border-bottom:2px solid #ddd;padding-bottom:6px;margin-top:28px}.box{border:1px solid #ddd;border-radius:12px;padding:14px;margin:10px 0;break-inside:avoid}.tag{display:inline-block;border:1px solid #ccc;border-radius:999px;padding:2px 8px;margin:2px;font-size:12px}.muted{color:#666}@media print{button{display:none}}</style></head><body><button onclick="print()">Print / Save as PDF</button>${subPacketHTML()}</body></html>`;
+      const w=window.open("","_blank"); w.document.write(html); w.document.close();
+    }
+    function subPacketHTML(){
+      const s=state.sub||{}, lessons=subLessons();
+      const section=(title,body)=>`<h2>${title}</h2><div class="box">${escapeHTML(body||"Not added yet.").replace(/\n/g,"<br>")}</div>`;
+      return `<h1>${escapeHTML(state.setup.className||"Classroom")} Substitute Teacher Packet</h1><p class="muted">Generated ${new Date().toLocaleString()}</p><div class="box"><b>Teacher:</b> ${escapeHTML(state.setup.teacherName||"")}<br><b>Room:</b> ${escapeHTML(s.subRoom||"")}<br><b>Office:</b> ${escapeHTML(s.subOffice||"")}<br><b>Buddy teacher:</b> ${escapeHTML(s.subBuddy||"")}</div>${section("Daily Routines",s.subRoutines)}${section("Roster / Groups",s.subRoster)}${section("Emergency Procedures",s.subEmergency)}${section("Important Notes",s.subNotes)}<h2>Lesson Plans</h2>${lessons.length?lessons.map(l=>`<div class="box"><h3>${escapeHTML(l.day)} · ${prettyTime(l.time)} · ${escapeHTML(l.title)}</h3><p><b>Subject:</b> ${escapeHTML(l.subject)} · <b>Minutes:</b> ${escapeHTML(l.minutes)}</p><p><b>Standard:</b> ${escapeHTML(l.standard||"")} · <b>Level:</b> ${escapeHTML(l.lexile||"")} · <b>Unit:</b> ${escapeHTML(l.unit||"")}</p><p><b>Materials:</b> ${escapeHTML(l.materials||"")}</p><p><b>Notes:</b> ${escapeHTML(l.notes||"")}</p></div>`).join(""):`<div class="box">No lessons added.</div>`}<h2>Centers</h2>${state.centers.groups.length?state.centers.groups.map(g=>`<div class="box"><b>${escapeHTML(g.name)}:</b> ${g.students.map(escapeHTML).join(", ")}<br><b>Starts at:</b> ${escapeHTML(g.center)}</div>`).join(""):`<div class="box">No center groups added.</div>`}`;
+    }
+    function copySubSummary(){ navigator.clipboard?.writeText($("subPreview").innerText); toast("Sub summary copied."); }
+
+    function exportJSON(){
+      const blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"});
+      const url=URL.createObjectURL(blob); const a=document.createElement("a");
+      const stamp=new Date().toISOString().slice(0,16).replace("T","_").replace(":","");
+      a.href=url; a.download=`teacher-hub-backup_${stamp}.json`; a.click(); URL.revokeObjectURL(url);
+    }
+    function importJSON(e){
+      const file=e.target.files[0]; if(!file) return; const reader=new FileReader();
+      reader.onload=()=>{ try{ const incoming=JSON.parse(reader.result); state={...defaultState(),...incoming}; localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); hydrateFields(); renderAll(); toast("Backup uploaded."); }catch(err){ alert("That backup file could not be read."); } };
+      reader.readAsText(file);
+    }
+    function toast(message){
+      const t=document.createElement("div"); t.textContent=message; t.style.cssText="position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:#273238;color:#fff;padding:10px 16px;border-radius:999px;z-index:2000;box-shadow:0 6px 18px rgba(0,0,0,.25);font-weight:800"; document.body.appendChild(t); setTimeout(()=>t.remove(),1800);
+    }
+
+    init();
+  </script>
+</body>
+</html>
